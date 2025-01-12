@@ -1,0 +1,24 @@
+{
+  "family": "quest-family",
+  "containerDefinitions": [
+    {
+      "name": "quest",
+      "image": "183295421798.dkr.ecr.us-east-1.amazonaws.com/quest:latest",
+      "memory": 300,
+      "cpu": 256,
+      "essential": true,
+      "portMappings": [
+        {
+          "containerPort": 3000,
+          "hostPort": 3000
+        }
+      ],
+      "environment": [
+        {
+          "name": "SECRET_WORD",
+          "value": "TwelveFactor"
+        }
+      ]
+    }
+  ]
+}
