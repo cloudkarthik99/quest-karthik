@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quest-deploy
+  namespace: quest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quest-app
+  template:
+    metadata:
+      labels:
+        app: quest-app
+    spec:
+      containers:
+      - name: quest
+        image: gcr.io/dazzling-alpha-441416-u4/quest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: SECRET_WORD
+          value: "TwelveFactor"

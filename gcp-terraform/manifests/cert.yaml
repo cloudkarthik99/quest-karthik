@@ -1,0 +1,8 @@
+apiVersion: networking.gke.io/v1
+kind: ManagedCertificate
+metadata:
+  name: quest-cert
+  namespace: quest
+spec:
+  domains:
+    - gke-quest.thetechvoyager.in
