@@ -1,18 +1,18 @@
-##Quest##
+# Quest
 
-#Deploy containerized Node.js Application in Cloud#
+## Deploy containerized Node.js Application in Cloud#
 
 This repo contains the infrastructure source code to deploy containerised application in AWS and GCP.
 
 Prerequisites:
-  AWS account
-  GCP account
-  Domain name
+  - AWS account
+  - GCP account
+  - Domain name
 Installations:
-  Docker CLI
-  AWS CLI
-  Gcloud CLI
-  Terraform CLI
+  - Docker CLI
+  - AWS CLI
+  - Gcloud CLI
+  - Terraform CLI
 
 Containerize the Application:
 
