@@ -1,6 +1,4 @@
-
 # Deploy Node.js application on GKE cluster
-
 ### Architecture:
 
 
@@ -27,18 +25,42 @@ creates:
     - cert.yaml - create certificate for LoadBalancer to use for HTTPS Traffic
     - ingress.yaml - Configure route for traffic to the backend Service, which in turn creates the  External Google Load Balancer
 
-## 
+## Containerizing the Application
+Follow these steps to containerize and deploy your Node.js application:
 
-#Image creation#
+1. Create a Dockerfile:
+   Create a Dockerfile in the root directory of your Node.js application.
+
+Build the Docker Image:
+Build the Docker image from the Dockerfile.
+
+sh
+docker build -t your-image-name .
+Push the Docker Image:
+Push the Docker image to both AWS ECR and GCP GCR.
+
+AWS ECR:
+sh
+aws ecr create-repository --repository-name your-repo-name
+aws ecr get-login-password --region your-region | docker login --username AWS --password-stdin your-aws-account-id.dkr.ecr.your-region.amazonaws.com
+docker tag your-image-name your-aws-account-id.dkr.ecr.your-region.amazonaws.com/your-repo-name
+docker push your-aws-account-id.dkr.ecr.your-region.amazonaws.com/your-repo-name
+GCP GCR:
+sh
+gcloud auth configure-docker
+docker tag your-image-name gcr.io/your-project-id/your-repo-name
+docker push gcr.io/your-project-id/your-repo-name
+
+### Image creation
 
 
-#Authenticate with the GCP account#
-
+### Authenticate with the GCP account
+```
 For terraform to authenticate and create resources in the specific project of GCP:
 
-`gcloud auth application-default login`
+gcloud auth application-default login
 
 Then configure the project where you want your resources to be deployed in:
 
-`gcloud config set project PROJECT_ID`  
-
+gcloud config set project PROJECT_ID
+```
