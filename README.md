@@ -8,6 +8,7 @@ Prerequisites:
   - AWS account
   - GCP account
   - Domain name
+  
 Installations:
   - Docker CLI
   - AWS CLI
