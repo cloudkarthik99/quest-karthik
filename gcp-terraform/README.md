@@ -7,7 +7,7 @@ Why GKE cluster and why not Cloud Run:
   2. Cloud Run also perfectly works with standalone application like this quest, but its still immature and I already explored 
      the familiar service from AWS for this quest i.e., AWS ECS.
 
-creates:
+## creates:
   - VPC
     - subnet
     - router
@@ -18,49 +18,19 @@ creates:
     - GKE Service Account
   - Backend
     - Folder to store Terraform state files in Cloud storage bucket(Already exists)
-    
   - Manifests:
     - deploy.yaml - Deploy the Application using the docker image of node.js Application we created
     - service.yaml - To expose the application deployed internally with `clusterIP` 
     - cert.yaml - create certificate for LoadBalancer to use for HTTPS Traffic
     - ingress.yaml - Configure route for traffic to the backend Service, which in turn creates the  External Google Load Balancer
 
-## Containerizing the Application
-Follow these steps to containerize and deploy your Node.js application:
-
-1. Create a Dockerfile:
-   Create a Dockerfile in the root directory of your Node.js application.
-
-Build the Docker Image:
-Build the Docker image from the Dockerfile.
-
-sh
-docker build -t your-image-name .
-Push the Docker Image:
-Push the Docker image to both AWS ECR and GCP GCR.
-
-AWS ECR:
-sh
-aws ecr create-repository --repository-name your-repo-name
-aws ecr get-login-password --region your-region | docker login --username AWS --password-stdin your-aws-account-id.dkr.ecr.your-region.amazonaws.com
-docker tag your-image-name your-aws-account-id.dkr.ecr.your-region.amazonaws.com/your-repo-name
-docker push your-aws-account-id.dkr.ecr.your-region.amazonaws.com/your-repo-name
-GCP GCR:
-sh
-gcloud auth configure-docker
-docker tag your-image-name gcr.io/your-project-id/your-repo-name
-docker push gcr.io/your-project-id/your-repo-name
-
-### Image creation
-
-
 ### Authenticate with the GCP account
 ```
-For terraform to authenticate and create resources in the specific project of GCP:
+# For terraform to authenticate and create resources in the specific project of GCP:
 
 gcloud auth application-default login
 
-Then configure the project where you want your resources to be deployed in:
+# Then configure the project where you want your resources to be deployed in:
 
 gcloud config set project PROJECT_ID
 ```
