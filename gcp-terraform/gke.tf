@@ -34,7 +34,7 @@ resource "google_container_node_pool" "gke_node_pool" {
 
   node_config {
     machine_type = "e2-medium"
-    # service_account = google_service_account.gke_sa.email
+    service_account = google_service_account.gke_sa.email
 
     oauth_scopes = [
       "https://www.googleapis.com/auth/cloud-platform"
@@ -42,19 +42,18 @@ resource "google_container_node_pool" "gke_node_pool" {
   }
 }
 
-# resource "google_service_account" "gke_sa"{
-#   account_id = "quest-gke-sa"
-#   display_name = "GKE Service account"
-# }
+resource "google_service_account" "gke_sa"{
+  account_id = "quest-gke-sa"
+  display_name = "GKE Service account"
+}
 
-# resource "google_project_iam_member" "gke_sa_role" {
-#   project = var.project_id
-#   role = "roles/container.nodeServiceAgent"
-#   member = "serviceAccount:${google_service_account.gke_sa.email}"
-# }
-
-# resource "google_project_iam_member" "gke_sa_artifact_role" {
-#   project = var.project_id
-#   role    = "roles/artifactregistry.reader"
-#   member  = "serviceAccount:${google_service_account.gke_sa.email}"
-# }
+resource "google_project_iam_member" "gke_sa_role" {
+  for_each = toset([
+    "roles/container.nodeServiceAgent",
+    "roles/artifactregistry.reader",
+    "roles/storage.objectViewer"
+  ])
+  project = var.project_id
+  role = each.value
+  member = "serviceAccount:${google_service_account.gke_sa.email}"
+}
