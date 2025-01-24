@@ -7,7 +7,7 @@ Why GKE cluster and why not Cloud Run:
   2. Cloud Run also perfectly works with standalone application like this quest, but its still immature and I already explored 
      the familiar service from AWS for this quest i.e., AWS ECS.
 
-## creates:
+## Key Components:
   - VPC
     - subnet
     - router
