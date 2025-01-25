@@ -7,7 +7,7 @@
   - GKE
     - Cluster
     - Custom Node pool
-    - GKE Service Account
+    - GKE Custom Service Account with necessary Permissions
   - Backend
     - Folder to store Terraform state files in Cloud storage bucket(Already exists)
   - Manifests:
@@ -26,7 +26,15 @@ gcloud auth application-default login
 
 gcloud config set project PROJECT_ID
 ```
-### 2. Initialize Terraform:
+Follow the steps below to deploy the GCP resources using Terraform:
+
+### 2. Clone the Repository:
+
+```sh
+git clone git@github.com:cloudkarthik99/quest-karthik.git
+cd gcp-terraform
+```
+### 3. Initialize Terraform:
 Navigate to the `gcp-terraform` directory:
 
 Initialize the Terraform configuration.
@@ -34,7 +42,7 @@ Initialize the Terraform configuration.
 ```sh
 terraform init
 ```
-### 3. Plan and Apply:
+### 4. Plan and Apply:
 Review the changes Terraform will make and apply them.
 
 ```sh

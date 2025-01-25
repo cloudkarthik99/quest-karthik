@@ -10,8 +10,9 @@ This repo contains the infrastructure source code to deploy containerised applic
   - Domain name (optional, we can use ELB DNS)
 
 ## Installations:
-  - Docker CLI
-  - AWS CLI
+  - Git
+  - Docker CLI for creating and pushing images
+  - AWS CLI 
   - Gcloud CLI
   - Terraform CLI
   - kubectl (needed for GCP only)
@@ -41,6 +42,16 @@ docker push gcr.io/your-project-id/your-repo-name
 ```
 
 please refer to the README.md files of cloud specific folders for more info.
+
+## Improvements
+
+The current setup can be deployed in multiple ways apart from either ECS or GKE. 
+Basic research gave me several serverless deployment ideas to acheive this.
+
+### CI/CD:
+This setup can become much robust and clean with CI/CD implementation using Gitlab CI, Github Actions. 
+This can be implemented if spent little more time.
+I even have the source code from my previous projects: https://gitlab.com/devops-learnin
 
 > [!NOTE]
 > Heavy usage of Claude.ai, chatgpt, Perplexity is used for research purposes for this quest
