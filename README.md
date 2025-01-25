@@ -28,7 +28,6 @@ docker build -t your-image-name .
 
 ### AWS ECR:
 ```sh
-aws ecr create-repository --repository-name your-repo-name
 aws ecr get-login-password --region your-region | docker login --username AWS --password-stdin your-aws-account-id.dkr.ecr.your-region.amazonaws.com
 docker tag your-image-name your-aws-account-id.dkr.ecr.your-region.amazonaws.com/your-repo-name
 docker push your-aws-account-id.dkr.ecr.your-region.amazonaws.com/your-repo-name
@@ -41,5 +40,7 @@ docker tag your-image-name gcr.io/your-project-id/your-repo-name
 docker push gcr.io/your-project-id/your-repo-name
 ```
 
-please refer to the README.md files of specific folders for more info.
+please refer to the README.md files of cloud specific folders for more info.
 
+> [!NOTE]
+> Heavy usage of Claude.ai, chatgpt, Perplexity is used for research purposes for this quest
