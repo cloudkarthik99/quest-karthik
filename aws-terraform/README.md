@@ -1,6 +1,8 @@
 # Deploy Node.js application on AWS ECS
 
 ## Infrastructure Overview
+![quest-aws](https://github.com/user-attachments/assets/1aadbe59-6926-42bc-8f16-c6d017387f4a)
+
 
 ### Components Deployed
   - VPC: Private VPC with public and private subnets.
