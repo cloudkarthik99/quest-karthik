@@ -28,7 +28,7 @@ env:
 
 defaults:
   run:
-    working_directory: ${{ env.WORKING_DIR }}
+    working-directory: ${{ env.WORKING_DIR }}
 
 permissions:
   id-token: write
