@@ -27,7 +27,7 @@ env:
 
 defaults:
   run:
-    working-directory: ${{ env.WORKING_DIR }}
+    working-directory: aws-terraform
 
 permissions:
   id-token: write
