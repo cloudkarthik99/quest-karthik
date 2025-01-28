@@ -1,0 +1,88 @@
+name: Terraform GCP Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Select Terraform action"
+        required: true
+        default: "apply"
+        type: choice
+        options:
+          - apply
+          - destroy
+
+env:
+  PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
+  PLAN_FILE: "tfplan"
+  TF_WORKSPACE: github-gcp-quest
+  WORKING_DIR: gcp-terraform
+  IDENTITY_PROVIDER: ${{ secrets.GCP_IDENTITY_PROVIDER }}
+  SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+
+defaults:
+  run:
+    working_directory: ${{ env.WORKING_DIR }}
+
+permissions:
+  id-token: write
+  contents: read
+  
+jobs: 
+  terraform:
+    if: ${{ github.event.inputs.action == 'apply' || github.event_name == 'push' || github.event_name == 'pull_request' }}
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out repository
+        uses: actions/checkout@v4
+      
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+           
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: ${{ env.IDENTITY_PROVIDER }}
+          service_account: ${{ env.SERVICE_ACCOUNT }}
+
+      - name: Setup Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+      
+      - name: Terraform Init
+        run: terraform init
+      
+      - name: Select Terraform Workspace
+        run: terraform workspace select ${{ env.TF_WORKSPACE }} || terraform workspace new ${{ env.TF_WORKSPACE }}
+
+      - name: Terraform Plan
+        run: |
+          if [ "${{ github.event.inputs.action }}" = "apply" ]; then
+            terraform plan -input=false -out=${{ env.PLAN_FILE }}
+          else
+            terraform plan -destroy -input=false -out=${{ env.PLAN_FILE }}
+
+      - name: Wait for Approval
+        uses: trstringer/manual-approval@v1
+        with:
+          approvers: cloudkarthik99
+          issue-title: "Manual Approval Required for Terraform Apply"
+          issue-body: "Please approve or deny the deployment."
+      
+      - name: Terraform Apply
+        if: ${{ github.event.inputs.action == 'apply' || github.event_name == 'push' }}
+        run: |
+          terraform apply --input=false "${{ env.PLAN_FILE }}"
+
+      - name: Terraform Destroy
+        if: github.event.inputs.action == 'destroy'
+        run: |
+          terraform apply --input=false "${{ env.PLAN_FILE }}"

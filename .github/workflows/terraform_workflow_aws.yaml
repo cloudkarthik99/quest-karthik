@@ -1,0 +1,135 @@
+name: Terraform AWS Workflow
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Select Terraform action"
+        required: true
+        default: "apply"
+        type: choice
+        options:
+          - apply
+          - destroy
+
+env:
+  S3_BUCKET: terraform-plan-bucket-for-cicd  # Replace with your S3 bucket name
+  PLAN_FILE: "tfplan"
+  DESTROY_PLAN_FILE: "destroytfplan"
+  TF_WORKSPACE: github-aws-quest
+  WORKING_DIR: aws-terraform
+
+defaults:
+  run:
+    working_directory: ${{ env.WORKING_DIR }}
+
+permissions:
+  id-token: write
+  contents: read
+  
+jobs: 
+  terraform-plan:
+    if: ${{ github.event.inputs.action == 'apply' || github.event_name == 'push' || github.event_name == 'pull_request' }}
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    steps:
+      # This step checks out a copy of your repository.
+      - name: check out repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Terraform
+        uses: ./.github/actions/setup_terraform_aws
+        with:
+          role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          
+      - name: Terraform Plan
+        run: |
+          terraform init
+          terraform workspace select ${{ env.TF_WORKSPACE }} || terraform workspace new ${{ env.TF_WORKSPACE }}
+          terraform plan -input=false -out=${{ env.PLAN_FILE }}
+          
+      - name: Upload Plan to S3
+        run: |
+          aws s3 cp ${{ env.WORKING_DIR }}/${{ env.PLAN_FILE }} s3://${{ env.S3_BUCKET }}/${{ env.TF_WORKSPACE }}/${{ env.PLAN_FILE }}
+          
+  terraform-apply:
+    needs: terraform-plan
+    if: ${{ github.event.inputs.action == 'apply' || github.event_name == 'push' || github.event_name == 'pull_request' }} 
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+
+      - name: check out repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Terraform
+        uses: ./.github/actions/setup_terraform_aws
+        with:
+          role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+
+      - name: Download Plan from S3
+        run: |
+          aws s3 cp s3://${{ env.S3_BUCKET }}/${{ env.TF_WORKSPACE }}/${{ env.PLAN_FILE }} ${{ env.WORKING_DIR }}/${{ env.PLAN_FILE }}
+          
+      - name: Apply
+        run: |
+          terraform init
+          terraform workspace select ${{ env.TF_WORKSPACE }}
+          terraform apply --input=false "${{ env.PLAN_FILE }}"
+          terraform state list
+          
+  terraform-destroy-plan:
+    if: github.event.inputs.action == 'destroy'
+    name: Terraform Destroy Plan
+    runs-on: ubuntu-latest
+    steps:
+      - name: check out repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Terraform
+        uses: ./.github/actions/setup_terraform_aws
+        with:
+          role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          
+      - name: Destroy
+        run: |
+          terraform init
+          terraform workspace select ${{ env.TF_WORKSPACE }}
+          terraform plan -destroy -input=false -out=${{ env.DESTROY_PLAN_FILE }}
+          
+      - name: Upload Plan to S3
+        run: |
+          aws s3 cp ${{ env.WORKING_DIR }}/${{ env.DESTROY_PLAN_FILE }} s3://${{ env.S3_BUCKET }}/${{ env.TF_WORKSPACE }}/${{ env.DESTROY_PLAN_FILE }}
+          
+  terraform-destroy:
+    needs: terraform-destroy-plan
+    if: github.event.inputs.action == 'destroy'
+    name: Terraform Destroy
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      # This step checks out a copy of your repository.
+      - name: check out repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Terraform
+        uses: ./.github/actions/setup_terraform_aws
+        with:
+          role_to_assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+
+      - name: Download Destroy Plan from S3
+        run: |
+          aws s3 cp s3://${{ env.S3_BUCKET }}/${{ env.TF_WORKSPACE }}/${{ env.DESTROY_PLAN_FILE }} ${{ env.WORKING_DIR }}/${{ env.DESTROY_PLAN_FILE }}
+          
+      - name: Destroy
+        run: |
+          terraform init
+          terraform workspace select ${{ env.TF_WORKSPACE}}
+          terraform apply -input=false "${{ env.DESTROY_PLAN_FILE }}"
