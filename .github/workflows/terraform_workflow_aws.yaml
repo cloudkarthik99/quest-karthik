@@ -22,7 +22,7 @@ env:
   S3_BUCKET: terraform-plan-bucket-for-cicd  # Replace with your S3 bucket name
   PLAN_FILE: "tfplan"
   DESTROY_PLAN_FILE: "destroytfplan"
-  TF_WORKSPACE: github-aws-quest
+  TF_WORKINGSPACE: github-aws-quest
   WORKING_DIR: aws-terraform
 
 defaults:
@@ -51,12 +51,12 @@ jobs:
       - name: Terraform Plan
         run: |
           terraform init
-          terraform workspace select ${{ env.TF_WORKSPACE }} || terraform workspace new ${{ env.TF_WORKSPACE }}
+          terraform workspace select ${{ env.TF_WORKINGSPACE }} || terraform workspace new ${{ env.TF_WORKINGSPACE }}
           terraform plan -input=false -out=${{ env.PLAN_FILE }}
           
       - name: Upload Plan to S3
         run: |
-          aws s3 cp ${{ env.WORKING_DIR }}/${{ env.PLAN_FILE }} s3://${{ env.S3_BUCKET }}/${{ env.TF_WORKSPACE }}/${{ env.PLAN_FILE }}
+          aws s3 cp ${{ env.WORKING_DIR }}/${{ env.PLAN_FILE }} s3://${{ env.S3_BUCKET }}/${{ env.TF_WORKINGSPACE }}/${{ env.PLAN_FILE }}
           
   terraform-apply:
     needs: terraform-plan
@@ -76,12 +76,12 @@ jobs:
 
       - name: Download Plan from S3
         run: |
-          aws s3 cp s3://${{ env.S3_BUCKET }}/${{ env.TF_WORKSPACE }}/${{ env.PLAN_FILE }} ${{ env.WORKING_DIR }}/${{ env.PLAN_FILE }}
+          aws s3 cp s3://${{ env.S3_BUCKET }}/${{ env.TF_WORKINGSPACE }}/${{ env.PLAN_FILE }} ${{ env.WORKING_DIR }}/${{ env.PLAN_FILE }}
           
       - name: Apply
         run: |
           terraform init
-          terraform workspace select ${{ env.TF_WORKSPACE }}
+          terraform workspace select ${{ env.TF_WORKINGSPACE }}
           terraform apply --input=false "${{ env.PLAN_FILE }}"
           terraform state list
           
@@ -101,12 +101,12 @@ jobs:
       - name: Destroy
         run: |
           terraform init
-          terraform workspace select ${{ env.TF_WORKSPACE }}
+          terraform workspace select ${{ env.TF_WORKINGSPACE }}
           terraform plan -destroy -input=false -out=${{ env.DESTROY_PLAN_FILE }}
           
       - name: Upload Plan to S3
         run: |
-          aws s3 cp ${{ env.WORKING_DIR }}/${{ env.DESTROY_PLAN_FILE }} s3://${{ env.S3_BUCKET }}/${{ env.TF_WORKSPACE }}/${{ env.DESTROY_PLAN_FILE }}
+          aws s3 cp ${{ env.WORKING_DIR }}/${{ env.DESTROY_PLAN_FILE }} s3://${{ env.S3_BUCKET }}/${{ env.TF_WORKINGSPACE }}/${{ env.DESTROY_PLAN_FILE }}
           
   terraform-destroy:
     needs: terraform-destroy-plan
@@ -126,10 +126,10 @@ jobs:
 
       - name: Download Destroy Plan from S3
         run: |
-          aws s3 cp s3://${{ env.S3_BUCKET }}/${{ env.TF_WORKSPACE }}/${{ env.DESTROY_PLAN_FILE }} ${{ env.WORKING_DIR }}/${{ env.DESTROY_PLAN_FILE }}
+          aws s3 cp s3://${{ env.S3_BUCKET }}/${{ env.TF_WORKINGSPACE }}/${{ env.DESTROY_PLAN_FILE }} ${{ env.WORKING_DIR }}/${{ env.DESTROY_PLAN_FILE }}
           
       - name: Destroy
         run: |
           terraform init
-          terraform workspace select ${{ env.TF_WORKSPACE}}
+          terraform workspace select ${{ env.TF_WORKINGSPACE }}
           terraform apply -input=false "${{ env.DESTROY_PLAN_FILE }}"

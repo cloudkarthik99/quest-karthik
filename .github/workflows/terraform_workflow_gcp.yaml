@@ -46,12 +46,6 @@ jobs:
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v3
       
-      - name: Debug Provider
-        run: |
-         echo ${{ env.IDENTITY_PROVIDER }}
-         echo ${{ env.SERVICE_ACCOUNT }}
-         echo ${{ env.PROJECT_ID }}
-
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
         with:
