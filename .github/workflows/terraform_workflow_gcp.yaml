@@ -86,3 +86,4 @@ jobs:
         if: github.event.inputs.action == 'destroy'
         run: |
           terraform apply --input=false "${{ env.PLAN_FILE }}"
+
