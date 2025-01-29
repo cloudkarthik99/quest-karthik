@@ -54,8 +54,6 @@ jobs:
 
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
-        with:
-          project_id: ${{ env.PROJECT_ID }}
       
       - name: Terraform Init
         run: terraform init
