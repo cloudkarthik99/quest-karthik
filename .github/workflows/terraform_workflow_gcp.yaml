@@ -60,7 +60,7 @@ jobs:
             terraform plan -input=false -out=${{ env.PLAN_FILE }}
           else
             terraform plan -destroy -input=false -out=${{ env.PLAN_FILE }}
-
+          fi
       - name: Wait for Approval
         uses: trstringer/manual-approval@v1
         with:
