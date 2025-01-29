@@ -16,9 +16,10 @@ env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   PLAN_FILE: "tfplan"
   TF_WORKINGSPACE: github-gcp-quest
-  WORKING_DIR: gcp-terraform
   IDENTITY_PROVIDER: ${{ secrets.GCP_IDENTITY_PROVIDER }}
   SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
+  GKE_CLUSTER: ${{ secrets.GCP_GKE_CLUSTER_QUEST}}
+  GCP_REGION: "us-east1"
 
 defaults:
   run:
@@ -31,7 +32,7 @@ permissions:
   
 jobs: 
   terraform:
-    name: Terraform Plan
+    name: Apply or Delete GCP Resources
     runs-on: ubuntu-latest
     steps:
       - name: check out repository
@@ -48,6 +49,8 @@ jobs:
 
       - name: Setup Google Cloud SDK
         uses: google-github-actions/setup-gcloud@v2
+        with:
+          install_components: 'kubectl'
       
       - name: Terraform Init
         run: terraform init
@@ -67,13 +70,26 @@ jobs:
         with:
           secret: ${{ secrets.GITHUB_TOKEN }}
           approvers: cloudkarthik99
-          issue-title: "Manual Approval Required for Terraform Apply"
+          issue-title: "Manual Approval Required for GCP Terraform Apply or Deny"
           issue-body: "Please approve or deny the deployment."
       
       - name: Terraform Apply
-        if: ${{ github.event.inputs.action == 'apply' || github.event_name == 'push' }}
+        if: ${{ github.event.inputs.action == 'apply' }}
         run: |
           terraform apply --input=false "${{ env.PLAN_FILE }}"
+      
+      - name: Get GKE Cluster Credentials
+        if: ${{ github.event.inputs.action == 'apply' }}
+        uses: 'google-github-actions/get-gke-credentials@v2'
+        with:
+         cluster_name: ${{ env.GKE_CLUSTER }}
+         location: ${{ env.GCP_REGION }}
+         project_id: ${{ env.PROJECT_ID }}
+      
+      - name: Deploy Kubernetes Manifests
+        if: ${{ github.event.inputs.action == 'apply' }}
+        run: |
+          kubectl apply -f manifests/
 
       - name: Terraform Destroy
         if: github.event.inputs.action == 'destroy'

@@ -3,7 +3,8 @@ resource "google_container_cluster" "gke_cluster" {
   location = "us-east1-b"
   network = google_compute_network.quest_vpc.id
   subnetwork = google_compute_subnetwork.private_subnet.id
-
+  deletion_protection = false
+  
   remove_default_node_pool = true
   initial_node_count = 1
 
