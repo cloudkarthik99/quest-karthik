@@ -19,7 +19,7 @@ env:
   IDENTITY_PROVIDER: ${{ secrets.GCP_IDENTITY_PROVIDER }}
   SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
   GKE_CLUSTER: ${{ secrets.GCP_GKE_CLUSTER_QUEST}}
-  GCP_REGION: "us-east1"
+  GCP_REGION: "us-east1-b"
 
 defaults:
   run:
