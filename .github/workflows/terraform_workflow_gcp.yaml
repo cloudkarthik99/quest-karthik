@@ -89,6 +89,8 @@ jobs:
       - name: Deploy Kubernetes Manifests
         if: ${{ github.event.inputs.action == 'apply' }}
         run: |
+          kubectl apply -f manifests/namespace.yaml
+          kubectl wait --for=condition=Active namespace/quest --timeout=30s
           kubectl apply -f manifests/
 
       - name: Terraform Destroy
