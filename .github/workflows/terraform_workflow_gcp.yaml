@@ -21,7 +21,7 @@ on:
 env:
   PROJECT_ID: ${{ secrets.GCP_PROJECT_ID }}
   PLAN_FILE: "tfplan"
-  TF_WORKSPACE: github-gcp-quest
+  TF_WORKINGSPACE: github-gcp-quest
   WORKING_DIR: gcp-terraform
   IDENTITY_PROVIDER: ${{ secrets.GCP_IDENTITY_PROVIDER }}
   SERVICE_ACCOUNT: ${{ secrets.GCP_SERVICE_ACCOUNT }}
@@ -59,7 +59,7 @@ jobs:
         run: terraform init
       
       - name: Select Terraform Workspace
-        run: terraform workspace select ${{ env.TF_WORKSPACE }} || terraform workspace new ${{ env.TF_WORKSPACE }}
+        run: terraform workspace select ${{ env.TF_WORKINGSPACE }} || terraform workspace new ${{ env.TF_WORKINGSPACE }}
 
       - name: Terraform Plan
         run: |
