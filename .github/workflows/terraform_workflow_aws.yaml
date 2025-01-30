@@ -77,11 +77,11 @@ jobs:
         run: |
           terraform apply --input=false "${{ env.PLAN_FILE }}"
 
-      - name: Terraform Destroy
-        if: ${{ github.event.inputs.action == 'destroy' && env.CHANGES_PRESENT == 'true' }}
-        run: |
-          terraform apply --input=false "${{ env.PLAN_FILE }}"
-      
-      - name: No Changes in Terraform state
+      - name: No Changes in Terraform Apply state
         if: env.CHANGES_PRESENT == 'false'
         run: echo "No changes detected in Terraform plan. Skipping approval and apply steps."
+
+      - name: Terraform Destroy
+        if: ${{ github.event.inputs.action == 'destroy' }}
+        run: |
+          terraform apply --input=false "${{ env.PLAN_FILE }}"
