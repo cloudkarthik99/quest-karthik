@@ -50,13 +50,14 @@ jobs:
       
       - name: Terraform Plan
         run: |
+          exit_code=0  # Initialize exit_code
           if [ "${{ github.event.inputs.action }}" = "apply" ]; then
             terraform plan -input=false -out=${{ env.PLAN_FILE }} -detailed-exitcode || exit_code=$?
           else
             terraform plan -destroy -input=false -out=${{ env.PLAN_FILE }} -detailed-exitcode || exit_code=$?
           fi
 
-          if [ $exit_code -eq 2 ]; then
+          if [ "$exit_code" -eq 2 ]; then
             echo "CHANGES_PRESENT=true" >> $GITHUB_ENV
           else
             echo "CHANGES_PRESENT=false" >> $GITHUB_ENV
