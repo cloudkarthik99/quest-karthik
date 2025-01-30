@@ -14,7 +14,7 @@ on:
 
 env:
   PLAN_FILE: "tfplan"
-  TF_WORKINGSPACE: github-quest
+  TF_WORKINGSPACE: github-aws-quest
 
 defaults:
   run:
