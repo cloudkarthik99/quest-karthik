@@ -52,11 +52,12 @@ jobs:
         id: plan
         run: |
           if [ "${{ github.event.inputs.action }}" = "apply" ]; then
-            PLAN_OUTPUT=$(terraform plan -input=false -out=${{ env.PLAN_FILE }})
+            terraform plan -input=false -out=${{ env.PLAN_FILE }}
           else
-            PLAN_OUTPUT=$(terraform plan -destroy -input=false -out=${{ env.PLAN_FILE }})
+            terraform plan -destroy -input=false -out=${{ env.PLAN_FILE }}
           fi
-
+          
+          PLAN_OUTPUT=${{ env.PLAN_FILE }}
           echo "PLAN_OUTPUT<<EOF" >> $GITHUB_OUTPUT
           echo "$PLAN_OUTPUT" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
