@@ -1,6 +1,3 @@
-data "aws_availability_zones" "available" {
-  state = "available"
-}
 
 resource "aws_vpc" "quest_vpc" {
   cidr_block = "10.0.0.0/16"
@@ -13,20 +10,20 @@ resource "aws_vpc" "quest_vpc" {
 }
 
 resource "aws_subnet" "public_subnet" {
-  count = 4
   vpc_id = aws_vpc.quest_vpc.id
-  cidr_block = "10.0.${count.index + 1}.0/24"
-  availability_zone = data.aws_availability_zones.available.names[count.index]
+  cidr_block = "10.0.1.0/24"
+  availability_zone = "us-east-1a"
 
   tags = {
-    Name = "public-subnet-${count.index + 1}"
+    Name = "public-subnet"
   }
 }
 
 resource "aws_subnet" "private_subnet" {
   vpc_id = aws_vpc.quest_vpc.id
   cidr_block = "10.0.10.0/24"
-
+  availability_zone = "us-east-1a"
+  
   tags = {
     Name = "private-subnet"
   }
@@ -42,7 +39,7 @@ resource "aws_internet_gateway" "internet_gateway" {
 
 resource "aws_nat_gateway" "nat_gateway" {
   allocation_id = aws_eip.eip_nat.id
-  subnet_id = aws_subnet.public_subnet[0].id
+  subnet_id = aws_subnet.public_subnet.id
 
   tags = {
     Name = "quest-nat-gw"
@@ -80,7 +77,7 @@ resource "aws_route_table" "private_route_table" {
 }
 
 resource "aws_route_table_association" "public_rt_association" {
-  subnet_id = aws_subnet.public_subnet[0].id
+  subnet_id = aws_subnet.public_subnet.id
   route_table_id = aws_route_table.public_route_table.id
 }
 
