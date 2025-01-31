@@ -41,17 +41,44 @@ docker tag your-image-name gcr.io/your-project-id/your-repo-name
 docker push gcr.io/your-project-id/your-repo-name
 ```
 
-please refer to the README.md files of cloud specific folders for more info.
+# Extras/Improvements
 
-## Improvements
+The current setup can be deployed in multiple ways apart from ECS or GKE. 
+Basic research gave me several serverless deployment ideas to acheive the same result as well.
+Now Lets go on to the more advanced steps
 
-The current setup can be deployed in multiple ways apart from either ECS or GKE. 
-Basic research gave me several serverless deployment ideas to acheive this.
+## CI/CD:
+This entire setup becomes more robust and clean with CI/CD implementation using Gitlab CI, Github Actions. 
+we chose github actions for nativity with the github.
 
-### CI/CD:
-This setup can become much robust and clean with CI/CD implementation using Gitlab CI, Github Actions. 
-This can be implemented if spent little more time.
-I even have the source code from my previous projects: https://gitlab.com/devops-learnin
+### Prerequisites
+Setup Authentication with the both clouds to deploy Resources on AWS or GCP using Github Actions.
+The best approach is:
+**OIDC:** For the setup, Please refer to the `oidc-github-aws` and `oidc-github-gcp` covered in `manual-resources` project https://gitlab.com/devops-learnin
 
+### Noticeable Features
+1. The current workflows contains Manual approval action written to proceed with the further steps only if manually approved. cf:
+   https://github.com/cloudkarthik99/quest-karthik/blob/main/.github/workflows/terraform_workflow_aws.yaml#L75
+![image](https://github.com/user-attachments/assets/c8eabc7c-9cdb-4124-87a2-e6aba172eb71)
+2. skip the step if no changes in Terraform:
+   If there are no changes to be deployed or deleted via Terraform, we can skip the Terraform Apply or Destroy steps altogether saving the time.
+   (This was explored with `exitcode` option, but couldnt get the expected results)
+
+### Improvements Needed
+1. Current Configuration contains only manual trigger of the required workflow pipeline with `Apply` or `Destroy` action. But this is not so hedious task to establish that `push` or `pull_request` trigger in the workflow.
+   ![image](https://github.com/user-attachments/assets/c90f090d-70bb-4555-bd41-72325854a393)
+
+3. Unclear view of the steps to confirm if the build was for Apply or Delete resources. cf:
+   ![image](https://github.com/user-attachments/assets/f4483d10-6a28-4ca2-9c23-656c551fde89)
+   I couldnt think of better approach at this moment to explore this issue. (eg: Maybe Variablizing the parameter)
+   
+Terraform AWS Workflow: ![image](https://github.com/user-attachments/assets/2bdf3c02-c954-4d71-b35f-d2f7400bfef8)
+Terraform GCP Workflow: ![image](https://github.com/user-attachments/assets/64d5aedf-97c9-4e48-9bda-3a107864cfe9)
+
+
+please refer to the README.md files of cloud specific folders for more info. 
+ - AWS Readme: https://github.com/cloudkarthik99/quest-karthik/blob/main/aws-terraform/README.md
+ - GCP Readme: https://github.com/cloudkarthik99/quest-karthik/blob/main/gcp-terraform/README.md
+   
 > [!NOTE]
 > Heavy usage of Claude.ai, chatgpt, Perplexity is used for research purposes for this quest
