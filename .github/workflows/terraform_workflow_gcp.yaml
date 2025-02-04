@@ -101,7 +101,6 @@ jobs:
         run: echo "No changes detected in Terraform plan. Skipping approval and apply steps."
 
       - name: Get GKE Cluster Credentials
-        if: ${{ github.event.inputs.action == 'apply' }}
         uses: 'google-github-actions/get-gke-credentials@v2'
         with:
          cluster_name: ${{ env.GKE_CLUSTER }}
@@ -115,9 +114,13 @@ jobs:
           sleep 30s
           kubectl apply -f manifests/
 
+      - name: Destroy Kubernetes Manifests in GKE
+        if: ${{ github.event.inputs.action == 'destroy' }}
+        run: |
+          kubectl delete -f manifests/
+          sleep 2m
+
       - name: Terraform Destroy
         if: ${{ github.event.inputs.action == 'destroy' }}
         run: |
           terraform apply --input=false "${{ env.PLAN_FILE }}"
-
-
